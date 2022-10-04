@@ -1,0 +1,74 @@
+#!/usr/bin/python3
+
+from enum import Enum
+from itertools import product
+import fileinput
+from random import shuffle
+
+class State(Enum):
+    START = 1
+    IN_STRING = 2
+
+def tokenize(input):
+    """Turn the input string into a list of strings based on simple
+    tokenization rules (basically quoted strings are a single
+    token). there is implicit whitespace between all tokens.
+"""
+    state = State.START
+    ret = ''
+    qc = ''
+
+    for i,c in enumerate(input):
+        if state == State.START:
+            if c.isspace():
+                if len(ret) > 0:
+                    yield ret
+                    ret = ''                
+            elif c.isalpha() or c in "_-":
+                ret = ret + c
+            elif c in "\"'":
+                if len(ret) > 0:
+                    yield ret
+                    ret = ''
+                state = State.IN_STRING
+                ret = ret + c
+                qc = c
+            elif len(ret) > 0:
+                yield ret
+                state = State.START
+                ret = '' + c
+            else:
+                ret = '' + c
+        elif state == State.IN_STRING:
+            ret = ret + c
+            if c == qc:
+                if len(ret) > 0:
+                    yield ret
+                    ret = ''
+                state = State.START
+    if len(ret) > 0: yield ret
+
+def idents():
+    lists = []
+    while True:
+        chars = [chr(n) for n in range(ord('a'), ord('z') + 1)] + [chr(n) for n in range(ord('A'), ord('Z') + 1)]
+        shuffle(chars)
+        lists.append(chars)
+        for c in product(*lists):
+            yield ':' + (''.join(c))
+
+ident = iter(idents())
+xform = dict()
+
+out = []
+for line in fileinput.input():
+    for t in tokenize(line):
+        if t[0].isalpha() or t[0] in "-_":
+            # we are a transformable token
+            key = xform.setdefault(t.lower(), next(ident))
+            out.append(key)
+        else:
+            out.append(t)
+for k,v in sorted(xform.items()):
+    print(f'\set {v.removeprefix(":")} {k}')
+print(' '.join(out))
