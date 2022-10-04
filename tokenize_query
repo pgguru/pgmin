@@ -8,6 +8,7 @@ from random import shuffle
 class State(Enum):
     START = 1
     IN_STRING = 2
+    OTHER = 3
 
 def tokenize(input):
     """Turn the input string into a list of strings based on simple
@@ -18,7 +19,8 @@ def tokenize(input):
     ret = ''
     qc = ''
 
-    for i,c in enumerate(input):
+    for i in list(range(len(input))):
+        c = input[i]
         if state == State.START:
             if c.isspace():
                 if len(ret) > 0:
@@ -33,12 +35,12 @@ def tokenize(input):
                 state = State.IN_STRING
                 ret = ret + c
                 qc = c
-            elif len(ret) > 0:
-                yield ret
-                state = State.START
-                ret = '' + c
             else:
+                # something else
+                if len(ret) > 0:
+                    yield ret
                 ret = '' + c
+                #state = State.OTHER
         elif state == State.IN_STRING:
             ret = ret + c
             if c == qc:
@@ -46,6 +48,8 @@ def tokenize(input):
                     yield ret
                     ret = ''
                 state = State.START
+        elif state == State.OTHER:
+            pass
     if len(ret) > 0: yield ret
 
 def idents():
@@ -63,12 +67,16 @@ xform = dict()
 out = []
 for line in fileinput.input():
     for t in tokenize(line):
-        if t[0].isalpha() or t[0] in "-_":
+        if len(t) > 2 and t[0].isalpha() or t[0] in "-_":
+            #print(f'transforming {t}')
             # we are a transformable token
             key = xform.setdefault(t.lower(), next(ident))
             out.append(key)
         else:
+            #print(f'ignoring {t}')
             out.append(t)
 for k,v in sorted(xform.items()):
     print(f'\set {v.removeprefix(":")} {k}')
+
+#for o in out:
 print(' '.join(out))
