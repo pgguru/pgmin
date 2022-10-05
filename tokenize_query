@@ -11,6 +11,7 @@ class State(Enum):
     OTHER = 3
     NUMERIC = 4
     WORD = 5
+    COMMENT = 6
 
 def tokenize(input):
     """Turn the input string into a list of strings based on simple
@@ -47,6 +48,18 @@ def tokenize(input):
                         ret = ''
                     ret = '' + c
                     state = State.WORD
+            elif c == "-" and input[i+1] == "-":
+                if len(ret) > 0:
+                    yield ret
+                    ret = ''
+                state = State.COMMENT
+                qc = "\n"
+            elif c == "/" and input[i+1] == "*":
+                if len(ret) > 0:
+                    yield ret
+                    ret = ''
+                state = State.COMMENT
+                qc = "*/"
             elif c in "\"'":
                 if len(ret) > 0:
                     yield ret
@@ -70,6 +83,12 @@ def tokenize(input):
                 if len(ret) > 0:
                     yield ret
                     ret = ''
+                state = State.START
+        elif state == State.COMMENT:
+            # we are discarding comments, so just ignore anything that isn't our closing sequence
+            if qc == "\n" and c == "\n":
+                state = State.START
+            elif c == "*" and input[i+1] == '/':
                 state = State.START
     if len(ret) > 0: yield ret
 
