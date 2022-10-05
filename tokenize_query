@@ -84,9 +84,9 @@ ident = iter(idents())
 xform = dict()
 
 out = []
+last_st = None
+replaced = False
 for line in fileinput.input():
-    last_st = None
-    replaced = False
     for t,st in tokenize(line):
         sys.stderr.write(f"{(t,st)}")
         if st not in [State.COMMENT, State.SPACE]:
