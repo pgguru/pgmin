@@ -30,12 +30,12 @@ def tokenize(input):
         if state in [State.START, State.NUMERIC, State.OTHER, State.WORD]:
             if c.isspace():
                 if len(ret) > 0:
-                    yield ret
+                    yield (ret,state)
                     ret = ''
                 state = State.START
             elif c.isdigit() and state == State.START:
                 if len(ret) > 0:
-                    yield ret
+                    yield (ret,state)
                     ret = ''
                 ret = '' + c
                 state = State.NUMERIC
@@ -52,25 +52,25 @@ def tokenize(input):
                     ret = ret + c
                 else:
                     if len(ret) > 0:
-                        yield ret
+                        yield (ret,state)
                         ret = ''
                     ret = '' + c
                     state = State.WORD
             elif c == "-" and input[i+1] == "-":
                 if len(ret) > 0:
-                    yield ret
+                    yield (ret,state)
                     ret = ''
                 state = State.COMMENT
                 qc = "\n"
             elif c == "/" and input[i+1] == "*":
                 if len(ret) > 0:
-                    yield ret
+                    yield (ret,state)
                     ret = ''
                 state = State.COMMENT
                 qc = "*/"
             elif c in "\"'":
                 if len(ret) > 0:
-                    yield ret
+                    yield (ret,state)
                     ret = ''
                 state = State.IN_STRING
                 ret = ret + c
@@ -81,7 +81,7 @@ def tokenize(input):
                     ret = ret + c
                 else:
                     if len(ret) > 0:
-                        yield ret
+                        yield (ret,state)
                         ret = ''
                     ret = '' + c
                     state = State.OTHER
@@ -89,7 +89,7 @@ def tokenize(input):
             ret = ret + c
             if c == qc:
                 if len(ret) > 0:
-                    yield ret
+                    yield (ret,state)
                     ret = ''
                 state = State.START
         elif state == State.COMMENT:
@@ -99,7 +99,7 @@ def tokenize(input):
             elif c == "*" and input[i+1] == '/':
                 state = State.START
                 i = i + 1
-    if len(ret) > 0 and state != State.COMMENT: yield ret
+    if len(ret) > 0 and state != State.COMMENT: yield (ret,state)
 
 def idents():
     lists = []
@@ -115,7 +115,7 @@ xform = dict()
 
 out = []
 for line in fileinput.input():
-    for t in tokenize(line):
+    for t,st in tokenize(line):
         if len(t) > 2 and t[0].isalpha() or t[0] in "-_":
             #print(f'transforming {t}')
             # we are a transformable token
