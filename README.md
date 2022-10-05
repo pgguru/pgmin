@@ -81,7 +81,7 @@ $ wc -c bloat.sql
     2202 bloat.sql
 $ wc -c bloat.min.sql
     2039 bloat.min.sql
-$ # breaktaking!
+$ # breathtaking!
 $ wc -l bloat.sql
       45 bloat.sql
 $ wc -l bloat.min.sql
@@ -103,7 +103,7 @@ There are no bugs, just code inputs I didn't anticipate or undesirable behaviors
 
 ## Enhancements
 
-While this is already peak software, I'd welcome alternahancements/feedback.  I will probably meh at it, but why not give it a shot?  It might be a half-headed meh followed by a slow nod and an eventual reluctant merge.
+While this is already peak software, I'd welcome alternahancements/feedback.  I will probably meh at it, but why not give it a shot?  It might be a half-hearted meh followed by a slow nod and an eventual reluctant merge.
 
 ## Author
 
