@@ -6,6 +6,8 @@ import fileinput
 from random import shuffle
 import sys
 
+DEBUG=False
+
 class State(Enum):
     START = 1
     IN_STRING = 2
@@ -57,7 +59,7 @@ def tokenize(input):
                 qc = '/'
             elif c.isspace():
                 ctype = State.SPACE
-            elif (c.isdigit() and state == State.START) or (c == '.' and state == State.NUMERIC):
+            elif (c.isdigit() and state != State.WORD) or (c == '.' and state == State.NUMERIC):
                 ctype = State.NUMERIC
             elif c.isalnum() or c == '_':
                 ctype = State.WORD
@@ -88,10 +90,14 @@ last_st = None
 replaced = False
 for line in fileinput.input():
     for t,st in tokenize(line):
-        sys.stderr.write(f"{(t,st)}")
+        if DEBUG: sys.stderr.write(f"{(t,st)}\n")
         if st not in [State.COMMENT, State.SPACE]:
-            if (replaced and st in [State.WORD, State.NUMERIC]) or st == last_st:
-                out.append(' ')
+            if DEBUG: sys.stderr.write(f"---> CHECKING FOR SPACING: this token: {st}; last token: {last_st} <---\n")
+            if replaced or st == last_st or st == State.WORD: # or (last_st == State.WORD and st in [State.WORD,State.NUMERIC]) or (last_st == State.NUMERIC and st == State.WORD):
+                if DEBUG: sys.stderr.write("---> FORCING SPACING <---\n")
+                pass
+            out.append(' ')
+            last_st = st
             if len(t) > 2 and t[0].isalpha() or t[0] in "-_":
                 #print(f'transforming {t}')
                 # we are a transformable token
@@ -101,7 +107,6 @@ for line in fileinput.input():
             else:
                 out.append(t)
                 replaced = False
-            last_st = st
 for k,v in sorted(xform.items()):
     print(f'\set {v.removeprefix(":")} {k}',end=' ')
 print()
