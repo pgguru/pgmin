@@ -99,7 +99,7 @@ for line in fileinput.input():
             #print(f'ignoring {t}')
             out.append(t)
 for k,v in sorted(xform.items()):
-    print(f'\set {v.removeprefix(":")} {k}')
-
+    print(f'\set {v.removeprefix(":")} {k}',end=' ')
+print()
 #for o in out:
 print(' '.join(out))
