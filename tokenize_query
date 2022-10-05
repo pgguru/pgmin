@@ -71,8 +71,6 @@ def tokenize(input):
                     yield ret
                     ret = ''
                 state = State.START
-        elif state == State.OTHER:
-            pass
     if len(ret) > 0: yield ret
 
 def idents():
