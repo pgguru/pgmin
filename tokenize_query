@@ -4,6 +4,7 @@ from enum import Enum
 from itertools import product
 import fileinput
 from random import shuffle
+import sys
 
 class State(Enum):
     START = 1
@@ -84,17 +85,25 @@ xform = dict()
 
 out = []
 for line in fileinput.input():
+    last_st = None
+    replaced = False
     for t,st in tokenize(line):
-        if len(t) > 2 and t[0].isalpha() or t[0] in "-_":
-            #print(f'transforming {t}')
-            # we are a transformable token
-            key = xform.setdefault(t.lower(), next(ident))
-            out.append(key)
-        else:
-            #print(f'ignoring {t}')
-            out.append(t)
+        sys.stderr.write(f"{(t,st)}")
+        if st not in [State.COMMENT, State.SPACE]:
+            if (replaced and st in [State.WORD, State.NUMERIC]) or st == last_st:
+                out.append(' ')
+            if len(t) > 2 and t[0].isalpha() or t[0] in "-_":
+                #print(f'transforming {t}')
+                # we are a transformable token
+                key = xform.setdefault(t.lower(), next(ident))
+                out.append(key)
+                replaced = True
+            else:
+                out.append(t)
+                replaced = False
+            last_st = st
 for k,v in sorted(xform.items()):
     print(f'\set {v.removeprefix(":")} {k}',end=' ')
 print()
 #for o in out:
-print(' '.join(out))
+print(''.join(out))
