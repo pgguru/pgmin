@@ -93,10 +93,9 @@ for line in fileinput.input():
         if DEBUG: sys.stderr.write(f"{(t,st)}\n")
         if st not in [State.COMMENT, State.SPACE]:
             if DEBUG: sys.stderr.write(f"---> CHECKING FOR SPACING: this token: {st}; last token: {last_st} <---\n")
-            if replaced or st == last_st or st == State.WORD: # or (last_st == State.WORD and st in [State.WORD,State.NUMERIC]) or (last_st == State.NUMERIC and st == State.WORD):
+            if State.OTHER not in [last_st, st]:
                 if DEBUG: sys.stderr.write("---> FORCING SPACING <---\n")
-                pass
-            out.append(' ')
+                out.append(' ')
             last_st = st
             if len(t) > 2 and t[0].isalpha() or t[0] in "-_":
                 #print(f'transforming {t}')
