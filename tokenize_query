@@ -66,6 +66,8 @@ def tokenize(input):
             else:
                 ctype = State.OTHER
 
+            if DEBUG and ctype == State.START: sys.stderr.write(f"XXXX somehow got a Start token; this shouldn't happen: {c,i}\n")
+
             if len(ret) > 0 and state != ctype:
                 yield (ret,state)
                 ret = ''
@@ -102,6 +104,7 @@ for line in fileinput.input():
                 #print(f'transforming {t}')
                 # we are a transformable token
                 key = xform.setdefault(t.lower(), next(ident))
+                if DEBUG: sys.stderr.write(f"---> CHOOSING REPLACEMENT KEY {key} FOR TOKEN: {t} <---\n")
                 out.append(key)
                 replaced = True
             else:
