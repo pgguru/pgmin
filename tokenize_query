@@ -12,6 +12,7 @@ class State(Enum):
     NUMERIC = 4
     WORD = 5
     COMMENT = 6
+    SPACE = 7
 
 def tokenize(input):
     """Turn the input string into a list of strings based on simple
@@ -27,65 +28,9 @@ def tokenize(input):
     while i < len(input) - 1:
         i = i + 1
         c = input[i]
-        if state in [State.START, State.NUMERIC, State.OTHER, State.WORD]:
-            if c.isspace():
-                if len(ret) > 0:
-                    yield (ret,state)
-                    ret = ''
-                state = State.START
-            elif c.isdigit() and state == State.START:
-                if len(ret) > 0:
-                    yield (ret,state)
-                    ret = ''
-                ret = '' + c
-                state = State.NUMERIC
-            elif state == State.NUMERIC:
-                if c in "0123456789.":
-                    ret = '' + c
-                else:
-                    # restart this char's processing in a different state
-                    state = State.START
-                    i = i - 1
-            elif c.isalnum() or c in "_":
-                if state in [State.START, State.WORD]:
-                    state = State.WORD
-                    ret = ret + c
-                else:
-                    if len(ret) > 0:
-                        yield (ret,state)
-                        ret = ''
-                    ret = '' + c
-                    state = State.WORD
-            elif c == "-" and input[i+1] == "-":
-                if len(ret) > 0:
-                    yield (ret,state)
-                    ret = ''
-                state = State.COMMENT
-                qc = "\n"
-            elif c == "/" and input[i+1] == "*":
-                if len(ret) > 0:
-                    yield (ret,state)
-                    ret = ''
-                state = State.COMMENT
-                qc = "*/"
-            elif c in "\"'":
-                if len(ret) > 0:
-                    yield (ret,state)
-                    ret = ''
-                state = State.IN_STRING
-                ret = ret + c
-                qc = c
-            else:
-                # catchall
-                if state == State.OTHER:
-                    ret = ret + c
-                else:
-                    if len(ret) > 0:
-                        yield (ret,state)
-                        ret = ''
-                    ret = '' + c
-                    state = State.OTHER
-        elif state == State.IN_STRING:
+        nextc = input[i+1] if i < len(input) - 1 else None
+
+        if state == State.IN_STRING:
             ret = ret + c
             if c == qc:
                 if len(ret) > 0:
@@ -99,7 +44,31 @@ def tokenize(input):
             elif c == "*" and input[i+1] == '/':
                 state = State.START
                 i = i + 1
-    if len(ret) > 0 and state != State.COMMENT: yield (ret,state)
+        else:
+            if c in "\"'":
+                ctype = State.IN_STRING
+                qc = c
+            elif c == '-' and nextc == '-':
+                ctype = State.COMMENT
+                qc = '\n'
+            elif c == '/' and nextc == '*':
+                ctype = State.COMMENT
+                qc = '/'
+            elif c.isspace():
+                ctype = State.SPACE
+            elif (c.isdigit() and state == State.START) or (c == '.' and state == State.NUMERIC):
+                ctype = State.NUMERIC
+            elif c.isalnum() or c == '_':
+                ctype = State.WORD
+            else:
+                ctype = State.OTHER
+
+            if len(ret) > 0 and state != ctype:
+                yield (ret,state)
+                ret = ''
+            ret = ret + c
+            state = ctype
+    if len(ret) > 0: yield (ret,state)
 
 def idents():
     lists = []
