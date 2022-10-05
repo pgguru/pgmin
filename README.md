@@ -74,7 +74,7 @@ And this same query after `pgmin`:
  :C :m(),:T,:P,:M((:h :f :K=0 :b 0.0 :X :H.:a:::e/:K :u):::o,1)AS :Z,:h :f :a<:K :b 0 :X bs*(:H.:a-:K):::v :u AS :Y,:x,:M((:h :f :V=0 OR :g=0 :b 0.0 :X :g:::e/:V :u):::o,1)AS :E,:h :f :g<:V :b 0 :X bs*(:g-:V):u AS :Cn :Cx(:C :T,:P,cc.:CN,cc.:a,bs,:Cb((cc.:CN*((:CW+ma-(:h :f :CW%ma=0 :b ma :X :CW%ma :u))+:Ck+4))/(bs-20:::e))AS :K,:Cc(c2.:CX,'?')AS :x,:Cc(c2.:CN,0)AS :CQ,:Cc(c2.:a,0)AS :g,:Cc(:Cb((c2.:CN*(:CW-12))/(bs-20:::e)),0)AS :V :Cx(:C ma,bs,:T,:P,(:CO+(:Cf+ma-(:h :f :Cf%ma=0 :b ma :X :Cf%ma :u))):::o AS :CW,(:Cu*(:CU+ma-(:h :f :CU%ma=0 :b ma :X :CU%ma :u)))AS :Ck :Cx(:C :T,:P,:Cf,ma,bs,:md((1-:mM)*:mw)AS :CO,:mk(:mM)AS :Cu,:Cf+(:C 1+:mR(*)/8 :Cx :mP s2 :mQ :mM<>0 :mJ s2.:T=s.:T :mJ s2.:P=s.:P)AS :CU :Cx :mP s,(:C(:C :mY('block_size'):::o)AS bs,:h :f :mI(v,12,3)IN('8.0','8.1','8.2'):b 27 :X 23 :u AS :Cf,:h :f v~'mingw32' :b 8 :X 4 :u AS ma :Cx(:C :TB()AS v)AS :Ty)AS :Ti :TN BY 1,2,3,4,5)AS :Ty)AS rs :Tb :Tq cc ON cc.:CX=rs.:P :Tb :TZ nn ON cc.:Td=nn.:TM :mJ nn.:TL=rs.:T :mJ nn.:TL<>'information_schema' :Tc :Tb :TR i ON :TH=cc.:TM :Tc :Tb :Tq c2 ON c2.:TM=i.:TD)AS :H :Tv BY :Y :Ts
 ```
 
-As you can see, it looks much smaller, which obviously make this better.  Why wouldn't you want to do this?  I'm sure the size difference here is significant!
+As you can see, it looks much smaller, which obviously makes this better.  Why wouldn't you want to do this?  I'm sure the size difference here is significant!
 
 ```console
 $ wc -c bloat.sql
