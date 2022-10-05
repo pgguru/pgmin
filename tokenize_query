@@ -98,7 +98,7 @@ for line in fileinput.input():
                 if DEBUG: sys.stderr.write("---> FORCING SPACING <---\n")
                 out.append(' ')
             last_st = st
-            if len(t) > 2 and t[0].isalpha() or t[0] in "-_":
+            if st == State.WORD and len(t) > 2:
                 #print(f'transforming {t}')
                 # we are a transformable token
                 key = xform.setdefault(t.lower(), next(ident))
