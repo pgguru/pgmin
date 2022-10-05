@@ -3,10 +3,13 @@
 from enum import Enum
 from itertools import product
 import fileinput
-from random import shuffle
+import random
 import sys
 
 DEBUG=False
+
+# using a constant seed for deterministic shuffling
+rand=random.Random(0)
 
 class State(Enum):
     START = 1
@@ -80,7 +83,7 @@ def idents():
     lists = []
     while True:
         chars = [chr(n) for n in range(ord('a'), ord('z') + 1)] + [chr(n) for n in range(ord('A'), ord('Z') + 1)]
-        shuffle(chars)
+        rand.shuffle(chars)
         lists.append(chars)
         for c in product(*lists):
             yield ':' + (''.join(c))
