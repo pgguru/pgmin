@@ -69,7 +69,8 @@ def tokenize(input):
             if len(ret) > 0 and state != ctype:
                 yield (ret,state)
                 ret = ''
-            ret = ret + c
+            if ctype != State.COMMENT:
+                ret = ret + c
             state = ctype
     if len(ret) > 0: yield (ret,state)
 
