@@ -9,6 +9,8 @@ class State(Enum):
     START = 1
     IN_STRING = 2
     OTHER = 3
+    NUMERIC = 4
+    WORD = 5
 
 def tokenize(input):
     """Turn the input string into a list of strings based on simple
@@ -21,13 +23,30 @@ def tokenize(input):
 
     for i in list(range(len(input))):
         c = input[i]
-        if state == State.START:
+        if state in [State.START, State.NUMERIC, State.OTHER, State.WORD]:
             if c.isspace():
                 if len(ret) > 0:
                     yield ret
-                    ret = ''                
-            elif c.isalpha() or c in "_-":
-                ret = ret + c
+                    ret = ''
+                state = State.START
+            elif c.isdigit() and state == State.START:
+                if len(ret) > 0:
+                    yield ret
+                    ret = ''
+                ret = '' + c
+                state = State.NUMERIC
+            elif state == State.NUMERIC and c in "0123456789.":
+                ret = '' + c
+            elif c.isalnum() or c in "_":
+                if state in [State.START, State.WORD]:
+                    state = State.WORD
+                    ret = ret + c
+                else:
+                    if len(ret) > 0:
+                        yield ret
+                        ret = ''
+                    ret = '' + c
+                    state = State.WORD
             elif c in "\"'":
                 if len(ret) > 0:
                     yield ret
@@ -36,11 +55,15 @@ def tokenize(input):
                 ret = ret + c
                 qc = c
             else:
-                # something else
-                if len(ret) > 0:
-                    yield ret
-                ret = '' + c
-                #state = State.OTHER
+                # catchall
+                if state == State.OTHER:
+                    ret = ret + c
+                else:
+                    if len(ret) > 0:
+                        yield ret
+                        ret = ''
+                    ret = '' + c
+                    state = State.OTHER
         elif state == State.IN_STRING:
             ret = ret + c
             if c == qc:
