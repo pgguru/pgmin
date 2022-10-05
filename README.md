@@ -87,6 +87,8 @@ $ wc -l bloat.sql
 $ wc -l bloat.min.sql
        2 bloat.min.sql
 $ # aweinspiring!
+$ rm -r $HOME^C
+$ # not recommended!
 ```
 
 Readability is overrated!
