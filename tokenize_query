@@ -39,8 +39,13 @@ def tokenize(input):
                     ret = ''
                 ret = '' + c
                 state = State.NUMERIC
-            elif state == State.NUMERIC and c in "0123456789.":
-                ret = '' + c
+            elif state == State.NUMERIC:
+                if c in "0123456789.":
+                    ret = '' + c
+                else:
+                    # restart this char's processing in a different state
+                    state = State.START
+                    i = i - 1
             elif c.isalnum() or c in "_":
                 if state in [State.START, State.WORD]:
                     state = State.WORD
