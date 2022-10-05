@@ -44,7 +44,7 @@ def tokenize(input):
             # we are discarding comments, so just ignore anything that isn't our closing sequence
             if qc == "\n" and c == "\n":
                 state = State.START
-            elif c == "*" and input[i+1] == '/':
+            elif c == "*" and nextc == '/':
                 state = State.START
                 i = i + 1
         else:
