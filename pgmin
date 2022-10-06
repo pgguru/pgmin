@@ -117,7 +117,6 @@ xform = dict()
 
 out = []
 last_st = None
-replaced = False
 for line in fileinput.input():
     for t,st in tokenize(line):
         if DEBUG: sys.stderr.write(f"{(t,st)}\n")
@@ -128,15 +127,12 @@ for line in fileinput.input():
                 out.append(' ')
             last_st = st
             if st == State.WORD and len(t) > 2:
-                #print(f'transforming {t}')
                 # we are a transformable token
                 key = xform.setdefault(t.lower(), next(ident))
                 if DEBUG: sys.stderr.write(f"---> CHOOSING REPLACEMENT KEY {key} FOR TOKEN: {t} <---\n")
                 out.append(key)
-                replaced = True
             else:
                 out.append(t)
-                replaced = False
 for k,v in sorted(xform.items()):
     print(f'\set {v.removeprefix(":")} {k}',end=' ')
 print()
