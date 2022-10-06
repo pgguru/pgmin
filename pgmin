@@ -39,10 +39,16 @@ def tokenize(input):
         if state == State.STRING:
             ret = ret + c
             if c == qc:
-                if len(ret) > 0:
-                    yield (ret,state)
-                    ret = ''
-                state = State.START
+                if nextc == qc:
+                    # SQL-style double-quoted strings, like yuck, srsly?!
+                    # just append another one and skip the next char, leaving in string mode
+                    ret = ret + c
+                    i = i + 1
+                else:
+                    if len(ret) > 0:
+                        yield (ret,state)
+                        ret = ''
+                    state = State.START
         elif state == State.COMMENT:
             # we are discarding comments, so just ignore anything that isn't our closing sequence
             if qc == "\n" and c == "\n":
