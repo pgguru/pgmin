@@ -66,6 +66,24 @@ def tokenize(input):
                 ctype = State.NUMERIC
             elif c.isalnum() or c == '_':
                 ctype = State.WORD
+            elif c == ':':
+                if nextc == ':':
+                    ctype = State.OTHER
+                    # required hack to skip past the double-::
+                    c = "::"
+                    i = i + 1
+                else:
+                    # looks like this is a psql variable
+                    raise Exception('pgmin does not support processing psql variable files yet')
+            elif c == '\\':
+                if nextc == '\\':
+                    ctype = State.OTHER
+                    # required hack to skip past the double-::
+                    c = "\\\\"
+                    i = i + 1
+                else:
+                    # looks like this is a psql command
+                    raise Exception('pgmin does not support processing psql commands yet')
             else:
                 ctype = State.OTHER
 
