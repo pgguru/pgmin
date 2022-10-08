@@ -99,7 +99,7 @@ There are no bugs, just code inputs I didn't anticipate or undesirable behaviors
 
 1. This probably does not handle `COPY` statements.  Due to how our ultra-basic parser works, we do not actually do any deep analysis of contents, so are basically operating on a token level to do our replacements.  As such, since `psql` won't do any such interpolation of its variables in the `STDIN` portion of the block, the generated output would look like raw `:foo` tokens, plus we basically discard any whitespace and use single spaces.  So while writing this out I've definitely convinced myself that that won't work.  So don't do that.  Or do write a patch and give it to me and maybe it'll do that then.
 
-2. This will probably not work for any SQL files with `psql` commands in it, so a minimized file re-minimized probably won't work.  I dunno, try it and get back to me; I assume `psql` will not do the double interpolation properly in the first pass, but it might surprise both of us.
+2. ~This will probably not work for any SQL files with `psql` commands in it, so a minimized file re-minimized probably won't work.  I dunno, try it and get back to me; I assume `psql` will not do the double interpolation properly in the first pass, but it might surprise both of us.~  Addendum: I have written psql command and non-string psql var handling. As a consequence, you can pipe valid output from `pgmin` into `pgmin` and it'll be idempotent.  Yay!
 
 3. There are probably parsing quirks that are not accounted for that might need to be, such as scientific notation, `E''` quoted strings, etc.
 
