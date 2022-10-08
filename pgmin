@@ -84,7 +84,7 @@ def tokenize(input):
             elif c == '\\':
                 if nextc == '\\':
                     ctype = State.OTHER
-                    # required hack to skip past the double-::
+                    # required hack to skip past the double-slash
                     c = "\\\\"
                     i = i + 1
                 else:
