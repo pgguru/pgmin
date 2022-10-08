@@ -154,10 +154,12 @@ xform = dict()
 
 out = []
 last_st = None
+first_st = None
 for line in fileinput.input():
     for t,st in tokenize(line):
         if DEBUG: sys.stderr.write(f"{(t,st)}\n")
         if st not in [State.COMMENT, State.SPACE]:
+            first_st = first_st or st
             if DEBUG: sys.stderr.write(f"---> CHECKING FOR SPACING: this token: {st}; last token: {last_st} <---\n")
             if last_st == State.PSQLCMD and st != State.PSQLCMD:
                 out.append("\n")
@@ -174,6 +176,5 @@ for line in fileinput.input():
                 out.append(t)
 for k,v in sorted(xform.items()):
     print(f'\set {v.removeprefix(":")} {k}',end=' ')
-print()
-#for o in out:
+if first_st != State.PSQLCMD and len(xform): print()
 print(''.join(out))
