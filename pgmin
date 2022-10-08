@@ -143,9 +143,11 @@ for line in fileinput.input():
         if DEBUG: sys.stderr.write(f"{(t,st)}\n")
         if st not in [State.COMMENT, State.SPACE]:
             if DEBUG: sys.stderr.write(f"---> CHECKING FOR SPACING: this token: {st}; last token: {last_st} <---\n")
-            if State.OTHER not in [last_st, st]:
+            if last_st == State.PSQLCMD and st != State.PSQLCMD:
+                out.append("\n")
+            elif State.OTHER not in [last_st, st]:
                 if DEBUG: sys.stderr.write("---> FORCING SPACING <---\n")
-                out.append(' ')
+                if last_st: out.append(' ')
             last_st = st
             if st == State.WORD and len(t) > 2:
                 # we are a transformable token
