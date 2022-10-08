@@ -69,8 +69,8 @@ def tokenize(input):
                 # explicitly *not* including the trailing newline in our token;
                 # spacing rules will figure it out contextually right after I
                 # write the logic
-                state = State.START
                 yield (ret.strip(),state)
+                state = State.START
                 ret = ''
                 if c == '\\':
                     # back up so we can start our processing at the slash next
