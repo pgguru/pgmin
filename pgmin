@@ -19,6 +19,7 @@ class State(Enum):
     WORD = 5
     COMMENT = 6
     SPACE = 7
+    PSQLCMD = 8
 
 def tokenize(input):
     """Turn the input string into a list of strings based on simple
@@ -56,6 +57,27 @@ def tokenize(input):
             elif c == "*" and nextc == '/':
                 state = State.START
                 i = i + 1
+        elif state == State.PSQLCMD:
+            # continue parsing the psql command until we hit a newline or
+            # another psql command. TODO: be careful about strings quoting in
+            # this routine; probably need to at least single/double quoting.
+            # For now just skip caring about quoting: what are you going to do,
+            # fix it and submit a PR?
+
+            if c == "\n" or c == '\\':
+                # explicitly *not* including the trailing newline in our token;
+                # spacing rules will figure it out contextually right after I
+                # write the logic
+                state = State.START
+                if len(ret) > 0:
+                    yield (ret,state)
+                    ret = ''
+                if c == '\\':
+                    # back up so we can start our processing at the slash next
+                    # time around
+                    i = i - 1
+            else:
+                ret = ret + c
         else:
             if c in "\"'":
                 ctype = State.STRING
@@ -88,8 +110,8 @@ def tokenize(input):
                     c = "\\\\"
                     i = i + 1
                 else:
-                    # looks like this is a psql command
-                    raise Exception('pgmin does not support processing psql commands yet')
+                    # looks like this is a psql command; terminated by another psql cmd or a newline
+                    ctype = State.PSQLCMD
             else:
                 ctype = State.OTHER
 
