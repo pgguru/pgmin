@@ -69,9 +69,8 @@ def tokenize(input):
                 # spacing rules will figure it out contextually right after I
                 # write the logic
                 state = State.START
-                if len(ret) > 0:
-                    yield (ret,state)
-                    ret = ''
+                yield (ret.strip(),state)
+                ret = ''
                 if c == '\\':
                     # back up so we can start our processing at the slash next
                     # time around
