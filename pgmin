@@ -58,6 +58,7 @@ def tokenize(input):
                 state = State.START
                 i = i + 1
         elif state == State.PSQLCMD:
+            if DEBUG: print(f'got pt PSQLCMD')
             # continue parsing the psql command until we hit a newline or
             # another psql command. TODO: be careful about strings quoting in
             # this routine; probably need to at least single/double quoting.
@@ -111,6 +112,7 @@ def tokenize(input):
                 else:
                     # looks like this is a psql command; terminated by another psql cmd or a newline
                     ctype = State.PSQLCMD
+                    if DEBUG: print(f'state:{state},ret:{ret},c:{c},nextc:{nextc}')
             else:
                 ctype = State.OTHER
 
