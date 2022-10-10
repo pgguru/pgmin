@@ -4,6 +4,7 @@ from enum import Enum
 from itertools import product
 import fileinput
 import random
+import re
 import sys
 
 DEBUG=False
@@ -21,6 +22,8 @@ class State(Enum):
     SPACE = 7
     PSQLCMD = 8
     PSQLVAR = 9
+
+seen_set = {}
 
 def tokenize(input):
     """Turn the input string into a list of strings based on simple
@@ -59,7 +62,7 @@ def tokenize(input):
                 state = State.START
                 i = i + 1
         elif state == State.PSQLCMD:
-            if DEBUG: print(f'got pt PSQLCMD')
+            if DEBUG: print(f'got PSQLCMD')
             # continue parsing the psql command until we hit a newline or
             # another psql command. TODO: be careful about strings quoting in
             # this routine; probably need to at least single/double quoting.
@@ -70,7 +73,13 @@ def tokenize(input):
                 # explicitly *not* including the trailing newline in our token;
                 # spacing rules will figure it out contextually right after I
                 # write the logic
-                yield (ret.strip(),state)
+                cmd = ret.strip()
+                # if this is a `set` command, capture the name of the variable
+                # so we don't use it when assigning new vars for our tokens.
+                if m := re.match('\\\\set (\\w+)', cmd):
+                    varname = ':' + m.group(1)
+                    seen_set[varname] = seen_set.get(varname, 0) + 1
+                yield (cmd,state)
                 state = State.START
                 ret = ''
                 if c == '\\':
@@ -169,7 +178,14 @@ for line in fileinput.input():
             last_st = st
             if st == State.WORD and len(t) > 2:
                 # we are a transformable token
-                key = xform.setdefault(t.lower(), next(ident))
+                varname = None
+                if DEBUG: sys.stderr.write(f'seen_set: {seen_set}\n')
+                while varname is None or varname in seen_set:
+                    # avoid reusing var names we have seen in the input stream
+                    if DEBUG: sys.stderr.write(f'testing new varname: {varname}\n')
+                    varname = next(ident)
+                    if DEBUG: sys.stderr.write(f'got new varname: {varname}\n')
+                key = xform.setdefault(t.lower(), varname)
                 if DEBUG: sys.stderr.write(f"---> CHOOSING REPLACEMENT KEY {key} FOR TOKEN: {t} <---\n")
                 out.append(key)
             else:
