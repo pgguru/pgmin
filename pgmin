@@ -161,35 +161,41 @@ def idents():
 ident = iter(idents())
 xform = dict()
 
+stream=[]
 out = []
 last_st = None
 first_st = None
+# parse the entire stream so all in-file \set tokens are discovered
 for line in fileinput.input():
-    for t,st in tokenize(line):
-        if DEBUG: sys.stderr.write(f"{(t,st)}\n")
-        if st not in [State.COMMENT, State.SPACE]:
-            first_st = first_st or st
-            if DEBUG: sys.stderr.write(f"---> CHECKING FOR SPACING: this token: {st}; last token: {last_st} <---\n")
-            if last_st == State.PSQLCMD and st != State.PSQLCMD:
-                out.append("\n")
-            elif State.OTHER not in [last_st, st]:
-                if DEBUG: sys.stderr.write("---> FORCING SPACING <---\n")
-                if last_st: out.append(' ')
-            last_st = st
-            if st == State.WORD and len(t) > 2:
-                # we are a transformable token
-                varname = None
-                if DEBUG: sys.stderr.write(f'seen_set: {seen_set}\n')
-                while varname is None or varname in seen_set:
-                    # avoid reusing var names we have seen in the input stream
-                    if DEBUG: sys.stderr.write(f'testing new varname: {varname}\n')
-                    varname = next(ident)
-                    if DEBUG: sys.stderr.write(f'got new varname: {varname}\n')
-                key = xform.setdefault(t.lower(), varname)
-                if DEBUG: sys.stderr.write(f"---> CHOOSING REPLACEMENT KEY {key} FOR TOKEN: {t} <---\n")
-                out.append(key)
-            else:
-                out.append(t)
+    stream = stream + list(tokenize(line))
+
+for t,st in stream:
+    if DEBUG: sys.stderr.write(f"{(t,st)}\n")
+    if st not in [State.COMMENT, State.SPACE]:
+        first_st = first_st or st
+        if DEBUG: sys.stderr.write(f"---> CHECKING FOR SPACING: this token: {st}; last token: {last_st} <---\n")
+        if last_st == State.PSQLCMD and st != State.PSQLCMD:
+            out.append("\n")
+        elif State.OTHER not in [last_st, st]:
+            if DEBUG: sys.stderr.write("---> FORCING SPACING <---\n")
+            if last_st: out.append(' ')
+        last_st = st
+        if st == State.WORD and len(t) > 2:
+            # we are a transformable token
+            varname = None
+            if DEBUG: sys.stderr.write(f'seen_set: {seen_set}\n')
+            while varname is None or varname in seen_set:
+                # avoid reusing var names we have seen in the input stream
+                if DEBUG: sys.stderr.write(f'testing new varname: {varname}\n')
+                varname = next(ident)
+                if DEBUG: sys.stderr.write(f'got new varname: {varname}\n')
+            key = xform.setdefault(t.lower(), varname)
+            if DEBUG: sys.stderr.write(f"---> CHOOSING REPLACEMENT KEY {key} FOR TOKEN: {t} <---\n")
+            out.append(key)
+        else:
+            out.append(t)
+
+
 for k,v in sorted(xform.items()):
     print(f'\set {v.removeprefix(":")} {k}',end=' ')
 if first_st != State.PSQLCMD and len(xform): print()
