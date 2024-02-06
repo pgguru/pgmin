@@ -1,0 +1,46 @@
+{
+   "name": "pgmin",
+   "abstract": "Minimize your pesky postgres queries",
+  "description": "Minimize and/or obfuscate SQL files to be used in psql",
+   "version": "0.0.1",
+   "maintainer": [
+      "David Christensen <david.christensen@crunchydata.com>"
+   ],
+   "license": "apache_2_0",
+   "provides": {
+      "pgmin": {
+         "abstract": "Minimize SQL queries",
+         "file": "pgmin",
+         "docfile": "README.md",
+         "version": "0.0.1"
+      }
+   },
+   "prereqs": {
+      "runtime": {
+         "requires": {
+           "PostgreSQL": "12.0.0",
+           "python": "3.7.0"
+         }
+      },
+   },
+   "resources": {
+      "bugtracker": {
+         "web": "https://github.com/pgguru/pgmin/issues/"
+      },
+      "repository": {
+         "url": "git://github.com/pgguru/pgmin.git",
+         "web": "https://github.com/pgguru/pgmin/",
+         "type": "git"
+      }
+   },
+   "generated_by": "David Christensen",
+   "meta-spec": {
+      "version": "1.0.0",
+      "url": "https://pgxn.org/meta/spec.txt"
+   },
+   "tags": [
+      "obfuscate",
+      "sql",
+      "silly",
+   ]
+}
