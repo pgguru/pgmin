@@ -11,6 +11,7 @@ sub test_pgmin_query {
     my @pgmin = qw(./pgmin);
 
     run \@pgmin, \$query, \$out;
+    chomp $out;
     return $out;
 }
 
@@ -20,6 +21,7 @@ sub safe_psql {
 
     my @psql = qw(psql -U postgres -AXqt);
     run \@psql, \$query, \$out;
+    chomp $out;
     return $out;
 }
 
@@ -35,8 +37,10 @@ where 1
 !=2 and status = 'something something something 1234'"
 ) {
     my $minimized = test_pgmin_query($query);
+    my $reminimized = test_pgmin_query($minimized);
 
-    is(test_pgmin_query($minimized), $minimized, 're-processing output is idempotent');
+    is(length($reminimized), length($minimized), 're-processing is the same length');
+    is($reminimized, $minimized, 're-processing output is idempotent');
 }
 
 # test minimized output for validity
@@ -49,3 +53,5 @@ for my $query (
 
     is(safe_psql($query), safe_psql($minimized), 'compare results of query and minimized query');
 }
+
+done_testing(1);
