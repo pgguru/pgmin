@@ -1,22 +1,25 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use PostgreSQL::Test::Cluster;
 use Test::More qw/no_plan/;
 use IPC::Run qw/run/;
-
-my $node = PostgreSQL::Test::Cluster->new('primary');
-
-$node->init();
-$node->start();
-
-my @pgmin = qw(./pgmin);
 
 sub test_pgmin_query {
     my ($query) = @_;
     my $out;
 
+    my @pgmin = qw(./pgmin);
+
     run \@pgmin, \$query, \$out;
+    return $out;
+}
+
+sub safe_psql {
+    my ($query) = @_;
+    my $out;
+
+    my @psql = qw(psql -U postgres -AXqt);
+    run \@psql, \$query, \$out;
     return $out;
 }
 
@@ -44,5 +47,5 @@ for my $query (
 ) {
     my $minimized = test_pgmin_query($query);
 
-    is($node->safe_psql('postgres', $query), $node->safe_psql('postgres', $minimized), 'compare results of query and minimized query');
+    is(safe_psql($query), safe_psql($minimized), 'compare results of query and minimized query');
 }
